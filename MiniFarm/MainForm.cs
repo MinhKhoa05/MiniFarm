@@ -2,13 +2,9 @@
 
 namespace MiniFarm
 {
-    public partial class Main : Form
+    public partial class MainForm : Form
     {
-        //private FarmGrid farmGrid;
-        //private GameManager gameManager;
-        //private Timer gameTimer;
-
-        public Main()
+        public MainForm()
         {
             InitializeComponent();
             InitializeGame();

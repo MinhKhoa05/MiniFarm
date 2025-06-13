@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using MiniFarm.Plants.Base;
 
 namespace MiniFarm.Tiles
 {
     public class SoilTile : ITile
     {
         private readonly Random random = new Random();
+        public IPlant CurrentPlant { get; set; } = null;
 
         public void Render(Graphics g, int x, int y, int size)
         {
@@ -25,6 +27,15 @@ namespace MiniFarm.Tiles
             using (Pen borderPen = new Pen(Color.FromArgb(100, 101, 67, 33)))
             {
                 g.DrawRectangle(borderPen, x, y, size - 1, size - 1);
+            }
+
+            if (CurrentPlant != null)
+            {
+                // Vẽ cây nếu có
+                int plantSize = Math.Min(size - 2, 24); // Kích thước tối đa 24px
+                int plantX = x + (size - plantSize) / 2;
+                int plantY = y + (size - plantSize) / 2;
+                CurrentPlant?.Render(g, plantX, plantY, plantSize);
             }
         }
 
@@ -116,14 +127,20 @@ namespace MiniFarm.Tiles
             }
         }
 
-        public void OnClick()
+        public bool OnClick()
         {
             // Hành động khi người dùng click vào ô đất
-        }
-
-        public string GetInfo()
-        {
-            return "Ô đất lvl 1";
+            if (CurrentPlant == null)
+            {
+                CurrentPlant = PlantFactory.CreatePlant(); // Giả sử có một factory để tạo cây trồng
+                return true; // Trả về true nếu đã trồng cây mới
+            }
+            else
+            {
+                // Nếu đã có cây trồng, có thể thu hoạch hoặc tương tác với cây
+                Console.WriteLine($"Interacting with {CurrentPlant.PlantName}.");
+                return false; // Trả về false nếu không trồng cây mới
+            }
         }
     }
 }

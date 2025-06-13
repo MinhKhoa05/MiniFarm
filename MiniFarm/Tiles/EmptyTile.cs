@@ -6,11 +6,6 @@ namespace MiniFarm.Tiles
     {
         public void Render(Graphics g, int x, int y, int size) { }
 
-        public void OnClick() { }
-     
-        public string GetInfo()
-        {
-            return "Ô trống";
-        }
+        public bool OnClick() => false;
     }
 }

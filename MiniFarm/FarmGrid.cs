@@ -2,7 +2,6 @@
 using System.Drawing;
 using System.Windows.Forms;
 using MiniFarm.Tiles;
-using MiniFarm.Tiles.Plants;
 
 namespace MiniFarm
 {
@@ -79,15 +78,9 @@ namespace MiniFarm
                 Point cell = new Point(col, row);
                 if (lastHandled != cell)
                 {
-                    ITile oldTile = tiles[row, col];
-                    oldTile.OnClick();
-
-                    ITile newTile = PlantFactory.CreatePlant(oldTile);
-
                     // Chỉ cập nhật nếu khác
-                    if (!newTile.Equals(oldTile))
+                    if (tiles[row, col].OnClick())
                     {
-                        tiles[row, col] = newTile;
                         Invalidate(new Rectangle(col * CellSize, row * CellSize, CellSize, CellSize));
                     }
 

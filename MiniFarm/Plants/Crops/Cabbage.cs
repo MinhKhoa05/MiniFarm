@@ -1,15 +1,14 @@
 ﻿using System.Drawing;
 using System.Drawing.Drawing2D;
+using MiniFarm.Plants.Base;
 
-namespace MiniFarm.Tiles.Plants
+namespace MiniFarm.Plants.Crops
 {
-    public class Cabbage : PlantDecorator
+    public class Cabbage : PlantBase
     {
-        protected override string PlantName { get; set; } = "Bắp cải";
+        public override string PlantName { get; set; } = "Bắp cải";
 
-        public Cabbage(ITile baseTile) : base(baseTile) { }
-
-        public override void RenderPlant(Graphics g, int x, int y, int size)
+        public override void Render(Graphics g, int x, int y, int size)
         {
             // 1. Shadow (ellipse đổ bóng)
             using (var shadowBrush = new SolidBrush(Color.FromArgb(50, 0, 0, 0)))

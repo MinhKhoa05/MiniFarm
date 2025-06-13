@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using MiniFarm.Plants.Base;
 
-namespace MiniFarm.Tiles.Plants
+namespace MiniFarm.Plants.Crops
 {
-    public class Carrot : PlantDecorator
+    public class Carrot : PlantBase
     {
-        protected override string PlantName { get; set; } = "Cà rốt";
+        public override string PlantName { get; set; } = "Cà rốt";
 
-        public Carrot(ITile baseTile) : base(baseTile) { }
-
-        public override void RenderPlant(Graphics g, int x, int y, int size)
+        public override void Render(Graphics g, int x, int y, int size)
         {
             int centerX = x + size / 2;
             int centerY = y + size / 2;

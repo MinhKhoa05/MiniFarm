@@ -49,21 +49,24 @@
     <Compile Include="FarmGrid.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Tiles\Plants\PlantDrawingHelper.cs" />
-    <Compile Include="Main.cs">
+    <Compile Include="GameManager.cs" />
+    <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Main.Designer.cs">
-      <DependentUpon>Main.cs</DependentUpon>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Plants\Base\IPlant.cs" />
     <Compile Include="Tiles\EmptyTile.cs" />
-    <Compile Include="Tiles\Plants\Cabbage.cs" />
-    <Compile Include="Tiles\Plants\Carrot.cs" />
-    <Compile Include="Tiles\Plants\PlantFactory.cs" />
-    <Compile Include="Tiles\Plants\Potato.cs" />
-    <Compile Include="Tiles\Plants\Wheat.cs" />
-    <Compile Include="Tiles\Plants\Tomato.cs" />
-    <Compile Include="Tiles\Plants\PlantDecorator.cs" />
+    <Compile Include="Plants\Crops\Cabbage.cs" />
+    <Compile Include="Plants\Crops\Carrot.cs" />
+    <Compile Include="Plants\Crops\ChiliPepper.cs" />
+    <Compile Include="Plants\Crops\Corn.cs" />
+    <Compile Include="Plants\Base\PlantFactory.cs" />
+    <Compile Include="Plants\Crops\Potato.cs" />
+    <Compile Include="Plants\Crops\Wheat.cs" />
+    <Compile Include="Plants\Crops\Tomato.cs" />
+    <Compile Include="Plants\Base\PlantBase.cs" />
     <Compile Include="ToolPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -74,8 +77,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tiles\ITile.cs" />
     <Compile Include="Tiles\SoilTile.cs" />
-    <EmbeddedResource Include="Main.resx">
-      <DependentUpon>Main.cs</DependentUpon>
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

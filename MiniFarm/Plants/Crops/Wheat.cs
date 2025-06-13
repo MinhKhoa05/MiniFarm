@@ -1,20 +1,16 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using MiniFarm.Plants.Base;
 
-namespace MiniFarm.Tiles.Plants
+namespace MiniFarm.Plants.Crops
 {
-    public class Wheat : PlantDecorator
+    public class Wheat : PlantBase
     {
-        private readonly Random random = new Random();
+        private static readonly Random random = new Random();
+        public override string PlantName { get; set; } = "Lúa";
 
-        protected override string PlantName { get; set; } = "Lúa";
-
-        public Wheat(ITile baseTile) : base(baseTile)
-        {
-        }
-
-        public override void RenderPlant(Graphics g, int x, int y, int size)
+        public override void Render(Graphics g, int x, int y, int size)
         {
             int centerX = x + size / 2;
             int baseY = y + size - 4;
