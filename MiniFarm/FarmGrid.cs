@@ -24,7 +24,6 @@ namespace MiniFarm
             DoubleBuffered = true;
             columns = 12;
             rows = (int)Math.Ceiling(totalCells / (double)columns);
-            Size = new Size(columns * CellSize, rows * CellSize);
 
             tileManager = new TileManager(rows, columns, totalCells);
 
