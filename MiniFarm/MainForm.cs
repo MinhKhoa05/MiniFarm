@@ -12,8 +12,14 @@ namespace MiniFarm
 
         private void InitializeGame()
         {
-            LoadUserControl(toolPanel, new ToolPanel());
-            LoadUserControl(gridPanel, new FarmGrid(100));
+            FarmGrid farmGrid = new FarmGrid(100);
+
+            farmGrid.CellHovered += (s, e) =>
+            {
+                richInfo.Text = $"{e.TileInfo}";
+            };
+
+            LoadUserControl(gridPanel, farmGrid);
         }
 
         private void LoadUserControl(Panel targetPanel, UserControl control)

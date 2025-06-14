@@ -57,6 +57,8 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Plants\Base\IPlant.cs" />
+    <Compile Include="TileManager.cs" />
+    <Compile Include="Tiles\Decorators\TileWithPlant.cs" />
     <Compile Include="Tiles\EmptyTile.cs" />
     <Compile Include="Plants\Crops\Cabbage.cs" />
     <Compile Include="Plants\Crops\Carrot.cs" />
@@ -67,12 +69,6 @@
     <Compile Include="Plants\Crops\Wheat.cs" />
     <Compile Include="Plants\Crops\Tomato.cs" />
     <Compile Include="Plants\Base\PlantBase.cs" />
-    <Compile Include="ToolPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="ToolPanel.Designer.cs">
-      <DependentUpon>ToolPanel.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tiles\ITile.cs" />
@@ -89,9 +85,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="ToolPanel.resx">
-      <DependentUpon>ToolPanel.cs</DependentUpon>
-    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

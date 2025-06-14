@@ -1,82 +1,141 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using MiniFarm.Plants.Base;
 
 namespace MiniFarm.Tiles
 {
     public class SoilTile : ITile
     {
-        private readonly Random random = new Random();
-        public IPlant CurrentPlant { get; set; } = null;
+        private readonly int seed;
+
+        public SoilTile()
+        {
+            // Tạo seed duy nhất cho mỗi tile để có pattern ổn định
+            seed = GetHashCode();
+        }
 
         public void Render(Graphics g, int x, int y, int size)
         {
-            // Vẽ nền đất
-            using (SolidBrush baseBrush = new SolidBrush(Color.FromArgb(139, 94, 60)))
+            // Thiết lập chất lượng render cao
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+            // Vẽ nền đất chính
+            DrawBaseLayer(g, x, y, size);
+
+            // Vẽ các lớp texture
+            DrawSoilTextureLayers(g, x, y, size);
+
+            // Vẽ chi tiết đất
+            DrawSoilDetails(g, x, y, size);
+
+            // Hiệu ứng độ sâu và ánh sáng
+            AddLightingEffects(g, x, y, size);
+
+            // Viền và hoàn thiện
+            DrawBorderAndFinish(g, x, y, size);
+        }
+
+        private void DrawBaseLayer(Graphics g, int x, int y, int size)
+        {
+            // Gradient nền từ nâu sáng đến nâu đậm
+            using (LinearGradientBrush baseBrush = new LinearGradientBrush(
+                new Point(x, y),
+                new Point(x + size, y + size),
+                Color.FromArgb(160, 120, 80),    // Nâu sáng
+                Color.FromArgb(110, 75, 45)))    // Nâu đậm
             {
                 g.FillRectangle(baseBrush, x, y, size - 1, size - 1);
             }
-
-            CreateSoilTexture(g, x, y, size);
-            DrawSoilParticles(g, x, y, size);
-            DrawSoilLines(g, x, y, size);
-            AddDepthEffect(g, x, y, size);
-
-            // Viền ngoài
-            using (Pen borderPen = new Pen(Color.FromArgb(100, 101, 67, 33)))
-            {
-                g.DrawRectangle(borderPen, x, y, size - 1, size - 1);
-            }
-
-            if (CurrentPlant != null)
-            {
-                // Vẽ cây nếu có
-                int plantSize = Math.Min(size - 2, 24); // Kích thước tối đa 24px
-                int plantX = x + (size - plantSize) / 2;
-                int plantY = y + (size - plantSize) / 2;
-                CurrentPlant?.Render(g, plantX, plantY, plantSize);
-            }
         }
 
-        private void CreateSoilTexture(Graphics g, int x, int y, int size)
+        private void DrawSoilTextureLayers(Graphics g, int x, int y, int size)
         {
-            Color[] soilColors = {
-                Color.FromArgb(80, 120, 80, 50),
-                Color.FromArgb(60, 160, 110, 70),
-                Color.FromArgb(70, 101, 67, 33),
-                Color.FromArgb(50, 139, 90, 43)
-            };
+            // Reset random với seed
+            Random localRandom = new Random(seed);
 
-            for (int i = 0; i < 15; i++)
-            {
-                int patchX = x + random.Next(0, size - 4);
-                int patchY = y + random.Next(0, size - 4);
-                int patchSize = random.Next(2, 6);
+            // Lớp 1: Các mảng đất lớn
+            DrawLargePatches(g, x, y, size, localRandom);
 
-                Color color = soilColors[random.Next(soilColors.Length)];
-                using (SolidBrush patchBrush = new SolidBrush(color))
-                {
-                    g.FillRectangle(patchBrush, patchX, patchY, patchSize, patchSize);
-                }
-            }
+            // Lớp 2: Texture chi tiết
+            DrawMediumTexture(g, x, y, size, localRandom);
+
+            // Lớp 3: Texture mịn
+            DrawFineTexture(g, x, y, size, localRandom);
         }
 
-        private void DrawSoilParticles(Graphics g, int x, int y, int size)
+        private void DrawLargePatches(Graphics g, int x, int y, int size, Random rnd)
         {
-            Color[] particleColors = {
-                Color.FromArgb(150, 160, 160, 160),
-                Color.FromArgb(120, 205, 133, 63),
-                Color.FromArgb(100, 101, 67, 33)
+            Color[] patchColors = {
+                Color.FromArgb(90, 140, 95, 65),   // Nâu đỏ nhạt
+                Color.FromArgb(85, 120, 85, 55),   // Nâu vàng
+                Color.FromArgb(95, 110, 70, 40),   // Nâu đậm
+                Color.FromArgb(80, 130, 90, 60)    // Nâu cam
             };
 
             for (int i = 0; i < 8; i++)
             {
-                int particleX = x + random.Next(2, size - 4);
-                int particleY = y + random.Next(2, size - 4);
-                int particleSize = random.Next(1, 3);
+                int patchX = x + rnd.Next(0, size - 12);
+                int patchY = y + rnd.Next(0, size - 12);
+                int patchW = rnd.Next(8, 16);
+                int patchH = rnd.Next(6, 12);
 
-                Color color = particleColors[random.Next(particleColors.Length)];
+                Color color = patchColors[rnd.Next(patchColors.Length)];
+
+                using (SolidBrush patchBrush = new SolidBrush(color))
+                {
+                    // Vẽ hình elip thay vì hình chữ nhật để trông tự nhiên hơn
+                    g.FillEllipse(patchBrush, patchX, patchY, patchW, patchH);
+                }
+            }
+        }
+
+        private void DrawMediumTexture(Graphics g, int x, int y, int size, Random rnd)
+        {
+            Color[] textureColors = {
+                Color.FromArgb(70, 145, 100, 70),
+                Color.FromArgb(60, 125, 80, 50),
+                Color.FromArgb(80, 135, 90, 60),
+                Color.FromArgb(65, 115, 75, 45)
+            };
+
+            for (int i = 0; i < 15; i++)
+            {
+                int texX = x + rnd.Next(1, size - 6);
+                int texY = y + rnd.Next(1, size - 6);
+                int texSize = rnd.Next(3, 7);
+
+                Color color = textureColors[rnd.Next(textureColors.Length)];
+
+                using (SolidBrush texBrush = new SolidBrush(color))
+                {
+                    // Vẽ các hình dạng không đều
+                    if (rnd.Next(2) == 0)
+                        g.FillEllipse(texBrush, texX, texY, texSize, texSize);
+                    else
+                        g.FillRectangle(texBrush, texX, texY, texSize, texSize / 2);
+                }
+            }
+        }
+
+        private void DrawFineTexture(Graphics g, int x, int y, int size, Random rnd)
+        {
+            // Các hạt đất nhỏ và sỏi
+            Color[] particleColors = {
+                Color.FromArgb(120, 180, 140, 100), // Sáng
+                Color.FromArgb(100, 160, 120, 80),  // Trung bình
+                Color.FromArgb(80, 140, 100, 60),   // Tối
+                Color.FromArgb(90, 200, 160, 120)   // Highlight
+            };
+
+            for (int i = 0; i < 25; i++)
+            {
+                int particleX = x + rnd.Next(2, size - 3);
+                int particleY = y + rnd.Next(2, size - 3);
+                int particleSize = rnd.Next(1, 3);
+
+                Color color = particleColors[rnd.Next(particleColors.Length)];
+
                 using (SolidBrush particleBrush = new SolidBrush(color))
                 {
                     g.FillEllipse(particleBrush, particleX, particleY, particleSize, particleSize);
@@ -84,63 +143,128 @@ namespace MiniFarm.Tiles
             }
         }
 
-        private void DrawSoilLines(Graphics g, int x, int y, int size)
+        private void DrawSoilDetails(Graphics g, int x, int y, int size)
         {
-            using (Pen linePen = new Pen(Color.FromArgb(60, 101, 67, 33), 1))
+            Random localRandom = new Random(seed + 1);
+
+            // Vẽ các vết nứt và đường gân
+            DrawCracks(g, x, y, size, localRandom);
+
+            // Vẽ các đốm và vệt đất
+            DrawSoilStreaks(g, x, y, size, localRandom);
+        }
+
+        private void DrawCracks(Graphics g, int x, int y, int size, Random rnd)
+        {
+            using (Pen crackPen = new Pen(Color.FromArgb(80, 80, 50, 30), 1))
             {
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < 4; i++)
                 {
-                    int startX = x + random.Next(0, size / 2);
-                    int startY = y + random.Next(0, size);
-                    int endX = startX + random.Next(size / 4, size / 2);
-                    int endY = startY + random.Next(-5, 5);
+                    int startX = x + rnd.Next(size / 4, 3 * size / 4);
+                    int startY = y + rnd.Next(0, size);
 
-                    endX = Math.Min(endX, x + size - 1);
-                    endY = Math.Max(y, Math.Min(endY, y + size - 1));
+                    // Tạo đường nứt không đều
+                    Point[] crackPoints = new Point[3];
+                    crackPoints[0] = new Point(startX, startY);
+                    crackPoints[1] = new Point(
+                        startX + rnd.Next(-size / 4, size / 4),
+                        startY + rnd.Next(-size / 6, size / 6)
+                    );
+                    crackPoints[2] = new Point(
+                        startX + rnd.Next(-size / 3, size / 3),
+                        Math.Max(y, Math.Min(y + size - 1, startY + rnd.Next(-size / 4, size / 4)))
+                    );
 
-                    g.DrawLine(linePen, startX, startY, endX, endY);
+                    if (crackPoints.Length > 1)
+                        g.DrawLines(crackPen, crackPoints);
                 }
             }
         }
 
-        private void AddDepthEffect(Graphics g, int x, int y, int size)
+        private void DrawSoilStreaks(Graphics g, int x, int y, int size, Random rnd)
         {
-            using (Pen highlightPen = new Pen(Color.FromArgb(40, 255, 255, 255), 1))
-            {
-                g.DrawLine(highlightPen, x, y, x + size - 1, y);
-                g.DrawLine(highlightPen, x, y, x, y + size - 1);
-            }
+            Color[] streakColors = {
+                Color.FromArgb(50, 100, 65, 35),
+                Color.FromArgb(60, 120, 80, 50),
+                Color.FromArgb(45, 90, 60, 30)
+            };
 
-            using (Pen shadowPen = new Pen(Color.FromArgb(40, 0, 0, 0), 1))
+            for (int i = 0; i < 6; i++)
             {
-                g.DrawLine(shadowPen, x, y + size - 1, x + size - 1, y + size - 1);
-                g.DrawLine(shadowPen, x + size - 1, y, x + size - 1, y + size - 1);
-            }
+                int streakX = x + rnd.Next(0, size - 8);
+                int streakY = y + rnd.Next(0, size - 4);
+                int streakW = rnd.Next(4, 12);
+                int streakH = rnd.Next(1, 3);
 
-            using (LinearGradientBrush gradientBrush = new LinearGradientBrush(
+                Color color = streakColors[rnd.Next(streakColors.Length)];
+
+                using (SolidBrush streakBrush = new SolidBrush(color))
+                {
+                    g.FillRectangle(streakBrush, streakX, streakY, streakW, streakH);
+                }
+            }
+        }
+
+        private void AddLightingEffects(Graphics g, int x, int y, int size)
+        {
+            // Hiệu ứng ánh sáng từ trên xuống
+            using (LinearGradientBrush lightBrush = new LinearGradientBrush(
                 new Point(x, y),
-                new Point(x + size, y),
-                Color.FromArgb(20, 255, 255, 255),
-                Color.FromArgb(20, 0, 0, 0)))
+                new Point(x, y + size / 2),
+                Color.FromArgb(30, 255, 255, 200),  // Ánh sáng vàng nhạt
+                Color.FromArgb(0, 255, 255, 200)))
             {
-                g.FillRectangle(gradientBrush, x, y, size - 1, size - 1);
+                g.FillRectangle(lightBrush, x, y, size - 1, size / 2);
+            }
+
+            // Bóng đổ ở góc dưới
+            using (LinearGradientBrush shadowBrush = new LinearGradientBrush(
+                new Point(x, y + size / 2),
+                new Point(x + size, y + size),
+                Color.FromArgb(0, 0, 0, 0),
+                Color.FromArgb(40, 0, 0, 0)))
+            {
+                g.FillRectangle(shadowBrush, x, y + size / 2, size - 1, size / 2);
+            }
+
+            // Highlight ở cạnh trên và trái
+            using (Pen highlightPen = new Pen(Color.FromArgb(60, 255, 255, 255), 1))
+            {
+                g.DrawLine(highlightPen, x + 1, y + 1, x + size - 2, y + 1);
+                g.DrawLine(highlightPen, x + 1, y + 1, x + 1, y + size - 2);
+            }
+        }
+
+        private void DrawBorderAndFinish(Graphics g, int x, int y, int size)
+        {
+            // Viền ngoài với gradient
+            using (LinearGradientBrush borderBrush = new LinearGradientBrush(
+                new Point(x, y),
+                new Point(x + size, y + size),
+                Color.FromArgb(120, 70, 45, 25),
+                Color.FromArgb(150, 90, 60, 35)))
+            {
+                using (Pen borderPen = new Pen(borderBrush, 1))
+                {
+                    g.DrawRectangle(borderPen, x, y, size - 1, size - 1);
+                }
+            }
+
+            // Viền trong mờ để tạo độ sâu
+            using (Pen innerPen = new Pen(Color.FromArgb(40, 0, 0, 0), 1))
+            {
+                g.DrawRectangle(innerPen, x + 1, y + 1, size - 3, size - 3);
             }
         }
 
         public bool OnClick()
         {
-            // Hành động khi người dùng click vào ô đất
-            if (CurrentPlant == null)
-            {
-                CurrentPlant = PlantFactory.CreatePlant(); // Giả sử có một factory để tạo cây trồng
-                return true; // Trả về true nếu đã trồng cây mới
-            }
-            else
-            {
-                // Nếu đã có cây trồng, có thể thu hoạch hoặc tương tác với cây
-                Console.WriteLine($"Interacting with {CurrentPlant.PlantName}.");
-                return false; // Trả về false nếu không trồng cây mới
-            }
+            return true;
+        }
+
+        public string GetInfo()
+        {
+            return "🌱 Đất màu mỡ";
         }
     }
 }
